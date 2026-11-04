@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dagbo Scan</title>
+<style>
+body{background:#0a0f1e;color:white;font-family:Arial;padding:15px;margin:0}
+h1{font-size:22px}h1 span{color:#00ff88}
+.top{display:flex;justify-content:space-between;background:#141c33;padding:12px;border-radius:12px}
+.top b{color:#00ff88}
+.card{background:#141c33;padding:14px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between}
+.price{font-size:18px;font-weight:bold;color:#00ff88}
+.small{font-size:12px;color:#aaa}.live{color:#00ff88;font-size:12px}
+.btn{background:#00ff88;color:black;border:none;padding:10px;border-radius:8px;font-weight:bold;width:100%}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#141c33;display:flex;justify-content:space-around;padding:10px 0;font-size:12px}
+.nav div{text-align:center;color:#aaa}.nav .active{color:#00ff88;font-weight:bold}
+</style>
+</head>
+<body>
+<h1>DAGBO SCAN <span>• LIVE</span></h1>
+<div class="top"><div>Market<br><b id="market">Checking...</b></div><div>Signals<br><b>0 Found</b></div><div>Win Rate<br><b>-- %</b></div></div>
+<p class="small">7 Pairs • Real Price • Render 24/7</p>
+<div id="list"></div>
+<button class="btn" onclick="loadPrices()">REFRESH REAL PRICE</button>
+<p class="small" style="text-align:center" id="updated">Loading real price...</p>
+<div style="height:70px"></div>
+<div class="nav"><div class="active">Home</div><div>Swing</div><div>Spike News</div><div>Ask AI</div><div>History</div><div>Setting</div></div>
+<script>
+const pairs=[{name:"GOLD",id:"gold"},{name:"BTC/USD",id:"btc"},{name:"EUR/USD",id:"eur"},{name:"GBP/USD",id:"gbp"},{name:"USD/JPY",id:"jpy"},{name:"GBP/JPY",id:"gbpjpy"},{name:"AUD/USD",id:"aud"}];
+let prices={gold:"--",btc:"--",eur:"--",gbp:"--",jpy:"--",gbpjpy:"--",aud:"--"};
+function render(){document.getElementById("list").innerHTML=pairs.map(p=>`<div class="card"><div><b>${p.name}</b><br><span class="small"><span class="live">● LIVE</span></span></div><div style="text-align:right"><div class="price">${prices[p.id]}</div><span class="small">Waiting...</span></div></div>`).join("");}
+async function loadPrices(){render();try{let g=await fetch("https://data-asg.goldprice.org/dbXRates/USD").then(r=>r.json());prices.gold="$ "+g.items[0].xauPrice.toFixed(2);let b=await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT").then(r=>r.json());prices.btc="$ "+parseFloat(b.price).toFixed(2);let f=await fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json());let r=f.rates;prices.eur=(1/r.EUR).toFixed(5);prices.gbp=(1/r.GBP).toFixed(5);prices.jpy=(1/r.JPY).toFixed(2);prices.gbpjpy=((1/r.GBP)/(1/r.JPY)).toFixed(2);prices.aud=(1/r.AUD).toFixed(5);document.getElementById("market").innerText="Open • Live";document.getElementById("updated").innerText="Updated: "+new Date().toLocaleTimeString()+" • Real Price";}catch(e){document.getElementById("updated").innerText="Network slow, press Refresh again.";}render();}
+loadPrices();setInterval(loadPrices,30000);
+</script>
+</body>
+</html>
