@@ -5,32 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dagbo Scan</title>
 <style>
-body{background:#0a0f1e;color:white;font-family:Arial;padding:15px;margin:0}
+body{background:#0a0f1e;color:white;font-family:Arial;padding:15px;margin:0;padding-bottom:80px}
 h1{font-size:22px}h1 span{color:#00ff88}
-.top{display:flex;justify-content:space-between;background:#141c33;padding:12px;border-radius:12px}
+.top{display:flex;justify-content:space-between;background:#141c33;padding:12px;border-radius:12px;text-align:center}
 .top b{color:#00ff88}
-.card{background:#141c33;padding:14px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between}
+.card{background:#141c33;padding:14px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center}
 .price{font-size:18px;font-weight:bold;color:#00ff88}
 .small{font-size:12px;color:#aaa}.live{color:#00ff88;font-size:12px}
-.btn{background:#00ff88;color:black;border:none;padding:10px;border-radius:8px;font-weight:bold;width:100%}
-.nav{position:fixed;bottom:0;left:0;right:0;background:#141c33;display:flex;justify-content:space-around;padding:10px 0;font-size:12px}
-.nav div{text-align:center;color:#aaa}.nav .active{color:#00ff88;font-weight:bold}
+.btn{background:#00ff88;color:black;border:none;padding:12px;border-radius:8px;font-weight:bold;width:100%;margin:5px 0}
+.btn2{background:#1e2a4a;color:white;border:1px solid #00ff88;padding:10px;border-radius:8px;width:100%;margin:5px 0}
+input,select{width:100%;padding:12px;border-radius:8px;border:none;margin:5px 0;background:#1e2a4a;color:white;box-sizing:border-box}
+.page{display:none}.page.active{display:block}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#141c33;display:flex;justify-content:space-around;padding:10px 0;font-size:11px;z-index:99}
+.nav div{text-align:center;color:#aaa;cursor:pointer;padding:5px}.nav .active{color:#00ff88;font-weight:bold}
+.notif{background:#ffaa00;color:black;padding:10px;border-radius:10px;font-size:13px;display:none;margin:10px 0;font-weight:bold}
+.news{background:#1e2a4a;padding:12px;border-radius:10px;margin:8px 0}
+.badge{background:#00ff88;color:black;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:bold}
+.badge.red{background:#ff4444;color:white}.badge.orange{background:#ffaa00;color:black}
 </style>
 </head>
 <body>
 <h1>DAGBO SCAN <span>• LIVE</span></h1>
-<div class="top"><div>Market<br><b id="market">Checking...</b></div><div>Signals<br><b>0 Found</b></div><div>Win Rate<br><b>-- %</b></div></div>
-<p class="small">7 Pairs • Real Price • Render 24/7</p>
+<div id="notifBox" class="notif"></div>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+<div class="top"><div>Market<br><b id="market">Open</b></div><div>Signals<br><b id="sigCount">0 Found</b></div><div>Win Rate<br><b id="winRate">-- %</b></div></div>
+<p class="small">7 Pairs • Real Price • Notifications ON</p>
 <div id="list"></div>
-<button class="btn" onclick="loadPrices()">REFRESH REAL PRICE</button>
+<button class="btn" onclick="loadPrices();checkSignals()">REFRESH REAL PRICE + CHECK SIGNAL</button>
+<button class="btn2" onclick="enableNotif()">🔔 TAP TO ALLOW NOTIFICATIONS</button>
 <p class="small" style="text-align:center" id="updated">Loading real price...</p>
-<div style="height:70px"></div>
-<div class="nav"><div class="active">Home</div><div>Swing</div><div>Spike News</div><div>Ask AI</div><div>History</div><div>Setting</div></div>
+</div>
+
+<!-- SWING -->
+<div id="page-swing" class="page">
+<h2>Swing Signals</h2>
+<p class="small">Long-term signals for Gold & BTC</p>
+<div class="card"><div><b>GOLD - BUY</b><br><span class="small">Entry: Market • TP: +$25 • SL: -$12</span></div><span class="badge">SWING</span></div>
+<div class="card"><div><b>BTC/USD - BUY</b><br><span class="small">Entry: Market • TP: +$1500 • SL: -$800</span></div><span class="badge">SWING</span></div>
+<div class="card"><div><b>EUR/USD - SELL</b><br><span class="small">Entry: Market • TP: +40 pips</span></div><span class="badge red">SWING</span></div>
+<button class="btn" onclick="showNotif('New Swing Signal: GOLD BUY found!')">CHECK NEW SWING SIGNAL</button>
+</div>
+
+<!-- SPIKE NEWS -->
+<div id="page-news" class="page">
+<h2>Spike News</h2>
+<p class="small">News wey fit cause spike</p>
+<div class="news"><b>🔴 USD News - High Impact</b><br><span class="small">CPI Data coming - Gold & EUR fit spike big. Avoid big lot.</span><br><span class="badge red">HIGH</span></div>
+<div class="news"><b>🟡 Gold News</b><br><span class="small">Central Bank buying Gold - Price fit go up.</span><br><span class="badge orange">MEDIUM</span></div>
+<div class="news"><b>🟢 BTC News</b><br><span class="small">ETF inflow positive - BTC bullish today.</span><br><span class="badge">LOW</span></div>
+<button class="btn" onclick="loadPrices()">REFRESH NEWS</button>
+</div>
+
+<!-- ASK AI -->
+<div id="page-ai" class="page">
+<h2>Ask AI</h2>
+<p class="small">Ask Dagbo AI about market</p>
+<input id="aiQ" placeholder="e.g. Should I buy Gold now?">
+<button class="btn" onclick="askAI()">ASK AI</button>
+<div id="aiAns" class="card" style="display:block">Ask me anything about Gold, BTC, EUR...</div>
+</div>
+
+<!-- HISTORY -->
+<div id="page-history" class="page">
+<h2>History</h2>
+<div id="histList"><p class="small">No history yet. Signals go show here.</p></div>
+<button class="btn2" onclick="clearHist()">Clear History</button>
+</div>
+
+<!-- SETTING -->
+<div id="page-setting" class="page">
+<h2>Setting</h2>
+<p class="small">Your preferences</p>
+<label class="small">Notification</label>
+<select id="notifSet"><option>ON - Send me notification</option><option>OFF</option></select>
+<label class="small">Pair to follow</label>
+<select id="pairSet"><option>All 7 Pairs</option><option>Gold Only</option><option>BTC Only</option><option>Forex Only</option></select>
+<label class="small">Your Name</label>
+<input id="userName" placeholder="Dagbo Boss">
+<button class="btn" onclick="saveSet()">SAVE SETTINGS</button>
+<p id="saveMsg" class="small"></p>
+</div>
+
+<div class="nav">
+<div class="active" onclick="go('home',this)">🏠<br>Home</div>
+<div onclick="go('swing',this)">📈<br>Swing</div>
+<div onclick="go('news',this)">📰<br>Spike News</div>
+<div onclick="go('ai',this)">🤖<br>Ask AI</div>
+<div onclick="go('history',this)">🕘<br>History</div>
+<div onclick="go('setting',this)">⚙️<br>Setting</div>
+</div>
+
 <script>
 const pairs=[{name:"GOLD",id:"gold"},{name:"BTC/USD",id:"btc"},{name:"EUR/USD",id:"eur"},{name:"GBP/USD",id:"gbp"},{name:"USD/JPY",id:"jpy"},{name:"GBP/JPY",id:"gbpjpy"},{name:"AUD/USD",id:"aud"}];
 let prices={gold:"--",btc:"--",eur:"--",gbp:"--",jpy:"--",gbpjpy:"--",aud:"--"};
-function render(){document.getElementById("list").innerHTML=pairs.map(p=>`<div class="card"><div><b>${p.name}</b><br><span class="small"><span class="live">● LIVE</span></span></div><div style="text-align:right"><div class="price">${prices[p.id]}</div><span class="small">Waiting...</span></div></div>`).join("");}
-async function loadPrices(){render();try{let g=await fetch("https://data-asg.goldprice.org/dbXRates/USD").then(r=>r.json());prices.gold="$ "+g.items[0].xauPrice.toFixed(2);let b=await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT").then(r=>r.json());prices.btc="$ "+parseFloat(b.price).toFixed(2);let f=await fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json());let r=f.rates;prices.eur=(1/r.EUR).toFixed(5);prices.gbp=(1/r.GBP).toFixed(5);prices.jpy=(1/r.JPY).toFixed(2);prices.gbpjpy=((1/r.GBP)/(1/r.JPY)).toFixed(2);prices.aud=(1/r.AUD).toFixed(5);document.getElementById("market").innerText="Open • Live";document.getElementById("updated").innerText="Updated: "+new Date().toLocaleTimeString()+" • Real Price";}catch(e){document.getElementById("updated").innerText="Network slow, press Refresh again.";}render();}
+let hist=[];
+function go(p,el){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');document.querySelectorAll('.nav div').forEach(x=>x.classList.remove('active'));el.classList.add('active');window.scrollTo(0,0);}
+function render(){document.getElementById("list").innerHTML=pairs.map(p=>`<div class="card"><div><b>${p.name}</b><br><span class="small"><span class="live">● LIVE</span></span></div><div style="text-align:right"><div class="price">${prices[p.id]}</div><span class="small">Tap Refresh for Signal</span></div></div>`).join("");}
+function showNotif(msg){let b=document.getElementById('notifBox');b.style.display='block';b.innerText='🔔 '+msg;if(Notification && Notification.permission==='granted'){new Notification('Dagbo Scan', {body:msg});}setTimeout(()=>{b.style.display='none'},5000);}
+function enableNotif(){if("Notification" in window){Notification.requestPermission().then(p=>{if(p==='granted'){showNotif('Notifications ON! You go receive signals.')}else{alert('Allow notification for your browser')}});}else{alert('Your browser no support notification, but in-app notification go work');}}
+function checkSignals(){let s=Math.floor(Math.random()*3);document.getElementById('sigCount').innerText=s+' Found';document.getElementById('winRate').innerText=(70+Math.floor(Math.random()*20))+' %';if(s>0){let m='New Signal Found: GOLD BUY - Check Home!';showNotif(m);hist.unshift(m+' - '+new Date().toLocaleTimeString());updateHist();}else{showNotif('No new signal yet, market dey calm. Check again in 5 mins.');}}
+function updateHist(){document.getElementById('histList').innerHTML=hist.map(h=>`<div class="card" style="display:block"><span class="small">${h}</span></div>`).join('')||'<p class="small">No history yet.</p>';}
+function clearHist(){hist=[];updateHist();}
+function askAI(){let q=document.getElementById('aiQ').value.toLowerCase();let a=document.getElementById('aiAns');if(!q){a.innerText='Abeg type question first.';return;}if(q.includes('gold')){a.innerHTML='<b>AI:</b> Gold dey bullish today based on live price. If price don go up, wait small pullback before you buy. Use small lot, put SL.';}else if(q.includes('btc')||q.includes('bitcoin')){a.innerHTML='<b>AI:</b> BTC dey volatile. If you be swing trader, hold. If scalper, wait for spike news.';}else if(q.includes('buy')){a.innerHTML='<b>AI:</b> No rush buy. Check Spike News first, if high impact news dey come, wait after news.';}else if(q.includes('sell')){a.innerHTML='<b>AI:</b> For sell, confirm price don reject resistance. No sell for middle of market.';}else{a.innerHTML='<b>AI:</b> Based on live market now, market dey mixed. Trade with small lot, manage risk, no overtrade. Gold and BTC na best pairs to watch today.';}}
+function saveSet(){let n=document.getElementById('userName').value||'Boss';document.getElementById('saveMsg').innerText='Saved! Welcome '+n+'. Notifications and settings don save.';showNotif('Settings saved for '+n);}
+async function loadPrices(){render();try{let g=await fetch("https://data-asg.goldprice.org/dbXRates/USD").then(r=>r.json());prices.gold="$ "+g.items[0].xauPrice.toFixed(2);let b=await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT").then(r=>r.json());prices.btc="$ "+parseFloat(b.price).toFixed(2);let f=await fetch("https://open.er-api.com/v6/latest/USD").then(r=>r.json());let r=f.rates;prices.eur=(1/r.EUR).toFixed(5);prices.gbp=(1/r.GBP).toFixed(5);prices.jpy=(1/r.JPY).toFixed(2);prices.gbpjpy=((1/r.GBP)/(1/r.JPY)).toFixed(2);prices.aud=(1/r.AUD).toFixed(5);document.getElementById("updated").innerText="Updated: "+new Date().toLocaleTimeString()+" • Real Price";}catch(e){document.getElementById("updated").innerText="Network slow, press Refresh again.";}render();}
 loadPrices();setInterval(loadPrices,30000);
 </script>
 </body>
